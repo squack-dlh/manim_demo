@@ -1,0 +1,51 @@
+class Graph2D(GraphScene):
+    CONFIG = {
+        "x_min": 0,
+        "x_max": 8,
+        "x_axis_width": 6,
+        "x_tick_frequency": 1,
+        "x_labeled_nums": range(0,8),
+        "y_min": -1,
+        "y_max": 1.2,
+        "y_axis_height": 2,
+        "y_tick_frequency": 1,
+        "y_labeled_nums": range(-1, 2),
+        "graph_origin": 2*UP+3*LEFT,
+    }
+
+    from manimlib.imports import *
+    def construct(self):
+        t1=Text("Demo",size=3,t2g={'Demo':(BLUE, GREEN)})
+        fml1=TexMobject("y=\sin x")
+        fml2=TexMobject("y=\sin x")
+        self.add(t1)
+        self.play(ReplacementTransform(t1,fml1),run_time=3)
+        c1 = Circle(radius=0, color=RED)
+        c2 = Circle(radius=1, color=RED)
+        c3 = Circle(radius=0, color=RED)
+        vg1 = VGroup(c2, c3)
+        dl = DecimalNumber(0,show_ellipsis=True,num_decimal_places=3,include_sign=True,)
+        self.setup_axes(animate=True)
+        dot1 = Dot(self.coords_to_point(0, 0), color=RED)
+        dot2 = Dot(self.coords_to_point(PI / 2, 0), color=RED)
+        dot3 = Dot(self.coords_to_point(PI, 0), color=RED)
+        dot4 = Dot(self.coords_to_point(1.5 * PI, 0), color=RED)
+        dot5 = Dot(self.coords_to_point(2 * PI, 0), color=RED)
+        vg2 = VGroup(dot2, dot3, dot4, dot5)
+        graph = self.get_graph(np.sin,x_max=2*PI)
+        fml2.next_to(graph,2*LEFT)
+        self.play(ReplacementTransform(fml1,fml2), run_time=3)
+        dl.add_updater(lambda x: x.next_to(c1,2*DOWN))
+        dl.add_updater(lambda x: x.set_value(np.sin(self.point_to_coords(dot1.get_arc_center())[0])))
+        c1.add_updater(lambda x: x.next_to(dot1,8*DOWN))
+        c2.add_updater(lambda x: x.next_to(dot1, 8 * DOWN))
+        c3.add_updater(lambda x: x.next_to(dot1, 8 * DOWN))
+        self.play(Write(graph))
+        self.add(dl)
+        for i in range(0,4):
+            self.play(
+                        ReplacementTransform(dot1,vg2[i]),
+                        ReplacementTransform(c1,vg1[i%2]),
+                        run_time=3)
+            self.remove(vg1[i % 2])
+        self.wait()
